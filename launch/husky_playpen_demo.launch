@@ -1,0 +1,3 @@
+<launch>
+    <include file="$(find husky_gazebo)/launch/husky_playpen.launch"/>
+</launch>
