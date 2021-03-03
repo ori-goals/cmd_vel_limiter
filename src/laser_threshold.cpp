@@ -10,15 +10,13 @@ double max_x_vel;
 bool apply_throttle = false;
 
 // topic for publishing thresholded commands
-// ros::Publisher cmd_vel_pub;
+ros::Publisher cmd_vel_pub;
 
 void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
-  ROS_INFO_STREAM("laser received");
-
   for(auto i = msg->ranges.begin(); i != msg->ranges.end(); ++i) {
     if(*i < throttle_distance) {
-      ROS_INFO_STREAM("Threshold under: " << *i);
+      ROS_DEBUG_STREAM("Threshold under: " << *i);
       apply_throttle = true;
       return;
     }
@@ -28,16 +26,19 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 
 void cmdCallback(const geometry_msgs::Twist::Ptr& msg)
 {
-  ROS_INFO_STREAM("cmd received");
 
   if(apply_throttle) {
     // apply limit
     if(msg->linear.x > max_x_vel) {
-      ROS_INFO_STREAM("Applying limit");
+      ROS_DEBUG_STREAM("Applying limit forwards");
       msg->linear.x = max_x_vel;
     }
+    else if(msg->linear.x < -max_x_vel) {
+      ROS_DEBUG_STREAM("Applying limit backwards");
+      msg->linear.x = -max_x_vel;
+    }
   }
-  // cmd_vel_pub.publish(msg);
+  cmd_vel_pub.publish(msg);
 }
 
 
@@ -46,11 +47,14 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "laser_threshold");
   ros::NodeHandle n;
   n.param("throttle_distance", throttle_distance, 1.0);
-  n.param("max_x_vel", max_x_vel, 0.2);
-  
-  n.subscribe("scan", 10, laserCallback);
-  // n.subscribe("cmd_vel", 10, cmdCallback);
-  // cmd_vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel_limited", 10);
+  n.param("max_x_vel", max_x_vel, 0.1);
+
+  ROS_INFO_STREAM("Throttling under distance: " << throttle_distance << "m");
+  ROS_INFO_STREAM("Throttling to max x vel: " << max_x_vel << "m/s");
+
+  ros::Subscriber scan_sub = n.subscribe("scan", 10, laserCallback);
+  ros::Subscriber cmd_sub = n.subscribe("cmd_vel", 10, cmdCallback);
+  cmd_vel_pub = n.advertise<geometry_msgs::Twist>("max_x_vel", 10);
   ros::spin();
 
   return 0;
