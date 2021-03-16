@@ -27,11 +27,11 @@ If you are testing this with the default Husky launch files, the command velocit
 
 With this in place the limiter can run with the following command:
 
-`ROS_NAMESPACE=/joy_teleop rosrun cmd_vel_limiter laser_threshold scan:=/scan`
+`ROS_NAMESPACE=/joy_teleop rosrun cmd_vel_limiter laser_threshold _distance_threshold:=1.2 scan:=/scan`
 
 Note I push the node into the `joy_teleop` so that the command vel topics line up, but this requires that the relative topic name `scan` be made absolute.
 
 
 To test that this is working, use `rqt` with a `Plot` visualisation plugin subscribing to `/joy_teleop/cmd_vel_limited/linear/x`. If you drive towards a wall you should see the x value drop to the limited value. If you want to see the commands sent to the robot you can add a second plot for `/husky_velocity_controller/odom/twist/twist/linear/x`.
 
-![RQT plot of limited x vel](./rqt.png "RQT plot of limited x vel")
+![RQT plot of limited x vel](./rqt.png "RQT plot of limited x velp")

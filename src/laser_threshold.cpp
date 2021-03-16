@@ -50,15 +50,16 @@ void cmdCallback(const geometry_msgs::Twist::Ptr& msg)
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "laser_threshold");
-  ros::NodeHandle n;
-  n.param("distance_threshold", distance_threshold, 1.0);
-  n.param("max_x_vel", max_x_vel, 0.1);
-  n.param("limit_in_reverse", limit_in_reverse, false);
+  ros::NodeHandle priv("~"); 
+  priv.param("distance_threshold", distance_threshold, 1.0);
+  priv.param("max_x_vel", max_x_vel, 0.1);
+  priv.param("limit_in_reverse", limit_in_reverse, false);
 
   ROS_INFO_STREAM("Throttling under distance: " << distance_threshold << "m");
   ROS_INFO_STREAM("Throttling to max x vel: " << max_x_vel << "m/s");
   ROS_INFO_STREAM("Limiting in reverse: " << limit_in_reverse);
 
+  ros::NodeHandle n; 
   ros::Subscriber scan_sub = n.subscribe("scan", 10, laserCallback);
   ros::Subscriber cmd_sub = n.subscribe("cmd_vel", 10, cmdCallback);
   cmd_vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel_limited", 10);
