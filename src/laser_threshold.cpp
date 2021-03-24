@@ -9,7 +9,7 @@ double distance_threshold;
 //value to cap x vel to when distance_threshold is violated
 double max_x_vel;
 // whether the distrance threshold has been violated
-bool apply_limit = false;
+bool apply_limit = true;
 // whether the distrance threshold has been violated
 bool limit_in_reverse = false;
 
@@ -19,8 +19,10 @@ ros::Publisher cmd_vel_pub;
 
 void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
+  // we were seeing values less than range_min on the robot.
+  auto min_possible_value = msg->range_min;
   for(auto i = msg->ranges.begin(); i != msg->ranges.end(); ++i) {
-    if(*i < distance_threshold) {
+    if(*i > min_possible_value && *i < distance_threshold) {
       ROS_DEBUG_STREAM("Value under threshold: " << *i);
       apply_limit = true;
       return;
