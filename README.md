@@ -13,6 +13,7 @@ Output:
 ## Parameters
 
  - `distance_threshold` - The distance threshold to apply to the laser scan, default 1m.
+ - `scale_range` - Within this range above `distance_threshold` the velocity is limited according to a linear scale between the input value and `max_x_vel`.
  - `max_x_vel` - The max x velocity to be allowed under the threshold, default 0.1 m/s.
  - `limit_in_reverse` - Whether the limit should be applied to negative x velocities, default false.
 
